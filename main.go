@@ -37,6 +37,7 @@ func main() {
 	}
 
 	// db.AutoMigrate(Gender{}, Test{}, Customer{})
+	// db.Migrator().CreateTable(Customer{}) (for DryRun: true checking sql command)
 }
 
 // CUSTOMER
@@ -142,6 +143,7 @@ func UpdateGender(id uint, name string) {
 	GetGender(id)
 }
 
+// if input params has zero value this func won't be updated
 func UpdateGender2(id uint, name string) {
 	gender := Gender{Name: name}
 	tx := db.Model(&Gender{}).Where("id=@myid", sql.Named("myid", id)).Updates(gender)
@@ -165,7 +167,7 @@ func DeleteGender(id uint) {
 
 // TEST
 type Test struct {
-	gorm.Model // auto generete ID, CreateAt, UpdateAt, RemoveAt (soft remove)
+	gorm.Model // auto generete ID, CreateAt, UpdateAt, RemoveAt (soft delete)
 	Code uint   `gorm:"comment:This is Code"`
 	Name string `gorm:"column:myname;size:20;unique;default:Hello;not null"`
 }
@@ -189,6 +191,10 @@ func GetTests() {
 }
 
 func DeleteTest(id uint) {
+	// soft delete (gorm.Model)
+	// db.Delete(&Test{}, id)
+
+	// permanant delete (gorm.Model)
 	db.Unscoped().Delete(&Test{}, id)
 }
 // END TEST
